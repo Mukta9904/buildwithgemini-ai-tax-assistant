@@ -1,64 +1,48 @@
-# AI Tax Filing Assistant
+# AI Tax Filing Assistant (Local Architecture)
 
-An agentic AI assistant built with Google Agent Development Kit (ADK) that helps Indian salaried employees analyze their tax position, identify deductions, and generate filing guidance. It grounds its advice using official Indian tax rules via Vertex AI RAG Engine.
+An agentic AI assistant built with Google Agent Development Kit (ADK) that helps Indian salaried employees analyze their tax position. This version is completely local and runs on zero-cost infrastructure using the free Gemini API.
 
-## How it works
-1. **Document Parsing**: Upload your Form 16 or rent receipts. The agent parses it (using mock extraction in this prototype).
-2. **Knowledge Retrieval**: It queries a Vertex AI Serverless RAG corpus containing Indian tax rules (Section 10(13A), Section 80C, etc.) to fetch the exact legal context.
-3. **Filing Checklist**: The agent tracks missing information (like rent receipts if HRA is claimed) and provides a dynamic checklist of what's completed and what's pending.
+## Architecture
+- **Frontend**: React (Vite) interface running on port 3000.
+- **Backend**: FastAPI wrapping the ADK `InMemoryRunner`, exposing a `/chat` endpoint on port 8000.
+- **Knowledge Base**: Instead of a cloud vector database, it uses a lightweight local text file (`data/tax_rules.txt`) to ground its tax advice.
 
 ## Prerequisites
 
 - [uv](https://docs.astral.sh/uv/) installed.
-- [agents-cli](https://adk.dev/) installed (`uv tool install google-agents-cli`).
-- Google Cloud Project with Billing enabled (Required for Vertex AI Vector Search).
-- Enable APIs:
-  ```bash
-  gcloud services enable aiplatform.googleapis.com vectorsearch.googleapis.com
-  ```
+- Node.js (for the frontend).
+- A free Gemini API Key from [Google AI Studio](https://aistudio.google.com/).
 
-## Setup & Installation
+## Setup & Running
 
-1. **Install dependencies**:
+1. **Set your API Key**:
+   Open a terminal and set your environment variable:
    ```bash
-   agents-cli install
+   export GEMINI_API_KEY="your-api-key-here"
+   export GOOGLE_GENAI_USE_VERTEXAI="false"
    ```
 
-2. **Authenticate with Google Cloud**:
+2. **Start the Backend**:
+   Install dependencies and start the FastAPI server:
    ```bash
-   gcloud auth login
-   gcloud auth application-default login
-   gcloud config set project YOUR_PROJECT_ID
+   uv sync
+   uv run uvicorn main:app --reload
    ```
 
-3. **Populate the RAG Knowledge Base**:
-   This project uses a serverless RAG Engine corpus to ground the tax rules.
-   - Ensure you have a Google Cloud Storage bucket with your tax documents (like the sample `data/tax_rules.txt`).
-   - Edit `scripts/create_rag_corpus.py` to point to your GCP project and GCS bucket URL.
-   - Run the script to ingest the tax data:
-     ```bash
-     uv run python scripts/create_rag_corpus.py
-     ```
-   - *Note: Serverless RAG mode currently operates in `us-central1`.*
-   - Copy the generated `corpus_name` output (e.g. `projects/.../ragCorpora/...`) and paste it into the `CORPUS_NAME` variable inside `app/tools.py`.
+3. **Start the Frontend**:
+   Open a **new terminal window** (don't forget to set the API keys here too if needed, though the frontend doesn't directly need them), and run:
+   ```bash
+   cd frontend
+   npm install
+   npm run dev
+   ```
 
-## Running the Agent
-
-You can interact with the agent directly from the terminal or using a local web playground.
-
-**Terminal**:
-```bash
-agents-cli run "I uploaded my Form 16, can you check it?"
-```
-
-**Web Playground**:
-```bash
-agents-cli playground
-```
-This opens a local chat UI in your browser where you can have a continuous conversation with the Tax Assistant.
+4. **Chat**:
+   Open your browser to the URL provided by Vite (usually `http://localhost:3000`) and start chatting!
 
 ## Project Structure
+- `main.py`: The FastAPI server wrapping the agent.
+- `frontend/`: The React application.
 - `app/agent.py`: Contains the system instructions, checklist rules, and agent orchestration.
-- `app/tools.py`: Contains the `extract_document_data` (mock parsing) and `retrieve_tax_rules` (RAG search) functions.
-- `scripts/create_rag_corpus.py`: Script to initialize and populate the Vertex AI RAG database.
-- `data/tax_rules.txt`: Sample tax rules ingested into the knowledge base.
+- `app/tools.py`: Contains the mock extraction and local text-search tools.
+- `data/tax_rules.txt`: Local knowledge base containing Indian tax rules.

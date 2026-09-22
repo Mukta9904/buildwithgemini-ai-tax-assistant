@@ -2,11 +2,10 @@
 
 from typing import Dict, Any, List
 import json
-# We will populate this dynamically or via an environment variable / replacement
-CORPUS_NAME = "projects/606861713769/locations/us-central1/ragCorpora/4385336156686909440"
+import os
 
 def retrieve_tax_rules(query: str) -> str:
-    """Search the official tax rules corpus and return matched passages.
+    """Search the official tax rules knowledge base and return relevant passages.
 
     Call this tool whenever you need to cite a tax section, rule, deduction, or form.
     Do NOT invent tax rules. Always ground your tax advice in the passages returned by this tool.
@@ -16,30 +15,24 @@ def retrieve_tax_rules(query: str) -> str:
     Returns:
         The matched passages from the official tax documents, or a note that none was found.
     """
-    from vertexai.preview import rag
-    import vertexai
+    # Fallback local search over the text file to avoid GCP costs
+    # In a real app with large data, use an in-memory vector DB like Chroma or FAISS.
+    # Here, we just return the full contents of the knowledge base to the model, 
+    # since it easily fits in Gemini's context window.
     
-    # RAG Engine Serverless is us-central1 only
-    vertexai.init(project="qwiklabs-gcp-02-06f72f9742c5", location="us-central1")
-    
+    file_path = os.path.join(os.path.dirname(__file__), '..', 'data', 'tax_rules.txt')
     try:
-        resp = rag.retrieval_query(
-            text=query,
-            rag_resources=[rag.RagResource(rag_corpus=CORPUS_NAME)],
-            rag_retrieval_config=rag.RagRetrievalConfig(top_k=3),
-        )
+        with open(file_path, 'r', encoding='utf-8') as f:
+            content = f.read()
+            return f"Official Tax Rules Context:\n\n{content}\n\nSearch Query Context: Focus your answer on elements related to '{query}'."
     except Exception as e:
         return f"Retrieval failed: {e}"
-        
-    contexts = getattr(resp.contexts, "contexts", [])
-    passages = [c.text.strip() for c in contexts if getattr(c, "text", "").strip()]
-    return "\n\n---\n\n".join(passages) or "No relevant passage found."
 
 
 def extract_document_data(document_name: str) -> str:
     """Extract and structure data from an uploaded Form 16, Form 12BB, or other tax document.
     
-    In a real app, this would use Document AI to parse the uploaded file.
+    In a real app, this would use an OCR/Extraction service.
     For this prototype, it returns mock data based on the document name.
     
     Args:
