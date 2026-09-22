@@ -1,0 +1,39 @@
+Section 10(13A) - House Rent Allowance (HRA)
+HRA is a component of salary provided by an employer towards rent payment.
+Exemption is the least of the following:
+1. Actual HRA received
+2. 50% of Basic Salary + Dearness Allowance (for metro cities) or 40% (for non-metro cities)
+3. Actual rent paid minus 10% of Basic Salary + DA.
+Conditions:
+- The employee must live in a rented property.
+- If rent paid exceeds Rs. 1,00,000 per year, the PAN of the landlord is mandatory.
+- Rent receipts and rent agreement should be retained for submission to the employer.
+
+Section 80C - Deductions on Investments
+Maximum deduction: Rs. 1,50,000 per financial year.
+Eligible investments/expenses:
+- Employees' Provident Fund (EPF)
+- Public Provident Fund (PPF)
+- Equity Linked Savings Scheme (ELSS)
+- Life Insurance Premium
+- 5-year Fixed Deposits
+- Principal repayment of Home Loan
+- Tuition fees for up to 2 children
+
+Section 80D - Medical Insurance Premium
+Deduction for medical insurance premium:
+- Up to Rs. 25,000 for self, spouse, and dependent children.
+- Additional Rs. 25,000 for parents (or Rs. 50,000 if parents are senior citizens).
+
+New vs Old Tax Regime (FY 2023-24 / AY 2024-25 onwards)
+- Old Regime allows deductions like HRA (Sec 10(13A)), 80C, 80D, and Home Loan interest (Sec 24).
+- New Regime offers lower tax rates but does not allow most deductions, except standard deduction of Rs. 50,000 and employer's contribution to NPS (80CCD(2)).
+- Taxpayers can choose the regime that results in lower tax liability.
+
+Form 16
+Form 16 is a certificate issued by an employer detailing the salary paid to the employee and the TDS (Tax Deducted at Source) deducted during the financial year.
+Part A contains employer and employee details, PAN, TAN, and summary of TDS.
+Part B contains the breakdown of salary, allowances, and deductions considered by the employer.
+
+Form 12BB
+Form 12BB is a declaration submitted by an employee to the employer to claim tax deductions. It requires evidence/proofs of investments and expenses (e.g., rent receipts, insurance premiums).
