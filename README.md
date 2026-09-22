@@ -1,92 +1,64 @@
-# ai-tax-assistant
+# AI Tax Filing Assistant
 
-Simple ReAct agent
-Agent generated with `agents-cli` version `1.1.0`
+An agentic AI assistant built with Google Agent Development Kit (ADK) that helps Indian salaried employees analyze their tax position, identify deductions, and generate filing guidance. It grounds its advice using official Indian tax rules via Vertex AI RAG Engine.
 
-## Project Structure
+## How it works
+1. **Document Parsing**: Upload your Form 16 or rent receipts. The agent parses it (using mock extraction in this prototype).
+2. **Knowledge Retrieval**: It queries a Vertex AI Serverless RAG corpus containing Indian tax rules (Section 10(13A), Section 80C, etc.) to fetch the exact legal context.
+3. **Filing Checklist**: The agent tracks missing information (like rent receipts if HRA is claimed) and provides a dynamic checklist of what's completed and what's pending.
 
-```
-ai-tax-assistant/
-├── app/         # Core agent code
-│   ├── agent.py               # Main agent logic
-│   ├── fast_api_app.py        # FastAPI Backend server
-│   └── app_utils/             # App utilities and helpers
-├── tests/                     # Unit, integration, and load tests
-├── GEMINI.md                  # AI-assisted development guide
-└── pyproject.toml             # Project dependencies
-```
+## Prerequisites
 
-> 💡 **Tip:** Use [Antigravity CLI](https://antigravity.google/) for AI-assisted development - project context is pre-configured in `GEMINI.md`.
+- [uv](https://docs.astral.sh/uv/) installed.
+- [agents-cli](https://adk.dev/) installed (`uv tool install google-agents-cli`).
+- Google Cloud Project with Billing enabled (Required for Vertex AI Vector Search).
+- Enable APIs:
+  ```bash
+  gcloud services enable aiplatform.googleapis.com vectorsearch.googleapis.com
+  ```
 
-## Requirements
+## Setup & Installation
 
-Before you begin, ensure you have:
-- **uv**: Python package manager (used for all dependency management in this project) - [Install](https://docs.astral.sh/uv/getting-started/installation/) ([add packages](https://docs.astral.sh/uv/concepts/dependencies/) with `uv add <package>`)
-- **agents-cli**: Agents CLI - Install with `uv tool install google-agents-cli`
-- **Google Cloud SDK**: For GCP services - [Install](https://cloud.google.com/sdk/docs/install)
+1. **Install dependencies**:
+   ```bash
+   agents-cli install
+   ```
 
+2. **Authenticate with Google Cloud**:
+   ```bash
+   gcloud auth login
+   gcloud auth application-default login
+   gcloud config set project YOUR_PROJECT_ID
+   ```
 
-## Quick Start
+3. **Populate the RAG Knowledge Base**:
+   This project uses a serverless RAG Engine corpus to ground the tax rules.
+   - Ensure you have a Google Cloud Storage bucket with your tax documents (like the sample `data/tax_rules.txt`).
+   - Edit `scripts/create_rag_corpus.py` to point to your GCP project and GCS bucket URL.
+   - Run the script to ingest the tax data:
+     ```bash
+     uv run python scripts/create_rag_corpus.py
+     ```
+   - *Note: Serverless RAG mode currently operates in `us-central1`.*
+   - Copy the generated `corpus_name` output (e.g. `projects/.../ragCorpora/...`) and paste it into the `CORPUS_NAME` variable inside `app/tools.py`.
 
-Install `agents-cli` and its skills if not already installed:
+## Running the Agent
 
+You can interact with the agent directly from the terminal or using a local web playground.
+
+**Terminal**:
 ```bash
-uvx google-agents-cli setup
+agents-cli run "I uploaded my Form 16, can you check it?"
 ```
 
-Install required packages:
-
-```bash
-agents-cli install
-```
-
-Test the agent with a local web server:
-
+**Web Playground**:
 ```bash
 agents-cli playground
 ```
+This opens a local chat UI in your browser where you can have a continuous conversation with the Tax Assistant.
 
-You can also use features from the [ADK](https://adk.dev/) CLI with `uv run adk`.
-
-## Commands
-
-| Command              | Description                                                                                 |
-| -------------------- | ------------------------------------------------------------------------------------------- |
-| `agents-cli install` | Install dependencies using uv                                                         |
-| `agents-cli playground` | Launch local development environment                                                  |
-| `agents-cli lint`    | Run code quality checks                                                               |
-| `agents-cli eval`    | Evaluate agent behavior (generate, grade, analyze, and more — see `agents-cli eval --help`) |
-| `uv run pytest tests/unit tests/integration` | Run unit and integration tests                                                        || [A2A Inspector](https://github.com/a2aproject/a2a-inspector) | Launch A2A Protocol Inspector                                                        |
-
-## 🛠️ Project Management
-
-| Command | What It Does |
-|---------|--------------|
-| `agents-cli scaffold enhance` | Add CI/CD pipelines and Terraform infrastructure |
-| `agents-cli infra cicd` | One-command setup of entire CI/CD pipeline + infrastructure |
-| `agents-cli scaffold upgrade` | Auto-upgrade to latest version while preserving customizations |
-
----
-
-## Development
-
-Edit your agent logic in `app/agent.py` and test with `agents-cli playground` - it auto-reloads on save.
-
-## Deployment
-
-```bash
-gcloud config set project <your-project-id>
-agents-cli deploy
-```
-
-To add CI/CD and Terraform, run `agents-cli scaffold enhance`.
-To set up your production infrastructure, run `agents-cli infra cicd`.
-
-## Observability
-
-Built-in telemetry exports to Cloud Trace, BigQuery, and Cloud Logging.
-
-## A2A Inspector
-
-This agent supports the [A2A Protocol](https://a2a-protocol.org/). Use the [A2A Inspector](https://github.com/a2aproject/a2a-inspector) to test interoperability.
-See the [A2A Inspector docs](https://github.com/a2aproject/a2a-inspector) for details.
+## Project Structure
+- `app/agent.py`: Contains the system instructions, checklist rules, and agent orchestration.
+- `app/tools.py`: Contains the `extract_document_data` (mock parsing) and `retrieve_tax_rules` (RAG search) functions.
+- `scripts/create_rag_corpus.py`: Script to initialize and populate the Vertex AI RAG database.
+- `data/tax_rules.txt`: Sample tax rules ingested into the knowledge base.
